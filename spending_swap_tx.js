@@ -63,8 +63,8 @@ txb.setLockTime(timelock)
 // txb.addInput(prevTx, vout, sequence, prevTxScript)
 txb.addInput(TX_ID, TX_VOUT, 0xfffffffe)
 
-// 0.000009 BTC  -- 900 sats
-txb.addOutput(p2wpkhSwapProvider.address, 9e2)
+// 0.000008 BTC  -- 800 sats
+txb.addOutput(p2wpkhSwapProvider.address, 8e2)
 
 const tx = txb.buildIncomplete()
 
