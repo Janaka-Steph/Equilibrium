@@ -6,6 +6,7 @@ The Swap Provider will prompt the user to pay an on-chain address (the P2WSH swa
 Once the swap has been paid and confirmed, the Swap Provider is able to redeem the funds to his wallet and can pay the 
 Lightning invoice of the user. 
 
+More info regarding the swap smart contract can be found in [Alex Bosworth's submarineswaps repo](https://github.com/submarineswaps/swaps-service/blob/master/docs/chain_swap_script.md#simple-case) 
 
 ## Requirements
 
