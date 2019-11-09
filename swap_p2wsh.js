@@ -13,16 +13,14 @@ const bip65 = require('bip65')
 
 // The LN invoice secret
 // Given in return for payment
-const preimage = Buffer.from('0000000000000000000000000000000000000000000000000000000000000008', 'hex')
-console.log('preimage ', preimage.toString('hex'))
-
-const preimageSha256 = bitcoin.crypto.sha256(preimage)
-console.log('preimageSha256 ', preimageSha256.toString('hex'))
-
+//const preimage = Buffer.from('PREIMAGE', 'hex')
+//console.log('preimage ', preimage.toString('hex'))
+//const preimageSha256 = bitcoin.crypto.sha256(preimage)
+//console.log('preimageSha256 ', preimageSha256.toString('hex'))
 
 // Original payment hash extracted from the invoice
 // Must match preimageSha256
-const paymentHash = Buffer.from('38df1c1f64a24a77b23393bca50dff872e31edc4f3b5aa3b90ad0b82f4f089b6', 'hex')
+const paymentHash = Buffer.from('PAYMENT_HASH', 'hex')
 console.log('original paymentHash ', paymentHash.toString('hex'))
 
 // The HASH160 on the blockchain
@@ -34,7 +32,7 @@ const keyPairSwapProvider = bitcoin.ECPair.fromWIF(alice[1].wif, network)
 const keyPairUser = bitcoin.ECPair.fromWIF(bob[1].wif, network)
 
 // Set CLTV block height
-const timelock = bip65.encode({ blocks: 950 })
+const timelock = bip65.encode({ blocks: 105 })
 console.log('timelock  ', timelock)
 
 // Generate witness script
