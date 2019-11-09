@@ -24,8 +24,8 @@ const paymentHash = Buffer.from('PAYMENT_HASH', 'hex')
 console.log('original paymentHash ', paymentHash.toString('hex'))
 
 // The HASH160 on the blockchain
-const preimageHash160 = bitcoin.crypto.hash160(preimage)
-console.log('preimageHash160 ', preimageHash160.toString('hex'))
+//const preimageHash160 = bitcoin.crypto.hash160(preimage)
+//console.log('preimageHash160 ', preimageHash160.toString('hex'))
 
 //
 const keyPairSwapProvider = bitcoin.ECPair.fromWIF(alice[1].wif, network)
