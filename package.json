@@ -1,0 +1,24 @@
+{
+  "name": "equilibrium",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Janaka-Steph/Equilibrium.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Janaka-Steph/Equilibrium/issues"
+  },
+  "homepage": "https://github.com/Janaka-Steph/Equilibrium#readme",
+  "dependencies": {
+    "Bitcoin-Test-Wallets-Generator": "git@github.com:bitcoin-studio/Bitcoin-Test-Wallets-Generator.git",
+    "bip65": "^1.0.3",
+    "bitcoinjs-lib": "^4.0.5"
+  }
+}
