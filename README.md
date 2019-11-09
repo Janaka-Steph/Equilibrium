@@ -15,7 +15,7 @@ $ lncli decodepayreq <pay_req>
 $ node swap_p2wsh.js PAYMENT_HASH  TIMELOCK  [PREIMAGE]
 
 ### 5. User send funds to the P2WSH address
-$ sendtoaddress <p2wsh_addr> 1
+$ sendtoaddress <p2wsh_addr> 0.00001
 
 ### 5. Swap Provider pays the invoice in order to get the preimage 
 $ lncli payinvoice <pay_req>
