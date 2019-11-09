@@ -96,7 +96,8 @@ console.log('First branch witness stack  ', witnessStackFirstBranch.map(x => x.t
 const witnessStackSecondBranch = bitcoin.payments.p2wsh({
   redeem: {
     input: bitcoin.script.compile([
-      bitcoin.script.signature.encode(keyPairUser.sign(signatureHash), hashType)
+      bitcoin.script.signature.encode(keyPairUser.sign(signatureHash), hashType),
+      Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
     ]),
     output: witnessScript
   }
