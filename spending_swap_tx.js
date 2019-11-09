@@ -9,10 +9,42 @@ const bip65 = require('bip65')
  *
  * TX_ID
  * TX_VOUT
- * timelock
- * witnessScript
  * preimage
+ * witnessScript
+ * timelock
  */
+
+let TX_ID = null
+let TX_VOUT = null
+let PREIMAGE = null
+let WITNESS_SCRIPT = null
+let TIMELOCK = null
+
+if (process.argv.length !== 7) {
+  console.log('Incorrect number of arguments')
+  console.log('Arguments must be: TX_ID  TX_VOUT  PREIMAGE  WITNESS_SCRIPT  TIMELOCK')
+  return
+}
+
+process.argv.forEach((value, index) => {
+  switch (index) {
+    case 2:
+      TX_ID = value
+      break
+    case 3:
+      TX_VOUT = Number(value)
+      break
+    case 4:
+      PREIMAGE = value
+      break
+    case 5:
+      WITNESS_SCRIPT = value
+      break
+    case 6:
+      TIMELOCK =  Number(value)
+      break
+  }
+})
 
 // Signers
 const keyPairSwapProvider = bitcoin.ECPair.fromWIF(alice[1].wif, network)
@@ -24,12 +56,12 @@ const p2wpkhSwapProvider = bitcoin.payments.p2wpkh({pubkey: keyPairSwapProvider.
 // Build spending transaction
 const txb = new bitcoin.TransactionBuilder(network)
 
-const timelock = bip65.encode({ blocks: 105 })
+const timelock = bip65.encode({ blocks: TIMELOCK })
 console.log('timelock  ', timelock)
 txb.setLockTime(timelock)
 
 // txb.addInput(prevTx, vout, sequence, prevTxScript)
-txb.addInput('TX_ID', TX_VOUT, 0xfffffffe)
+txb.addInput(TX_ID, TX_VOUT, 0xfffffffe)
 
 // 0.000009 BTC  -- 900 sats
 txb.addOutput(p2wpkhSwapProvider.address, 9e2)
@@ -38,11 +70,11 @@ const tx = txb.buildIncomplete()
 
 // hashForWitnessV0(inIndex, prevOutScript, value, hashType)
 // amount: 0.00001 -- 1000 sats
-const witnessScript = Buffer.from('WITNESS_SCRIPT', 'hex')
+const witnessScript = Buffer.from(WITNESS_SCRIPT, 'hex')
 const signatureHash = tx.hashForWitnessV0(0, witnessScript, 1e3, hashType)
 console.log('signature hash: ', signatureHash.toString('hex'))
 
-const preimage = Buffer.from('PREIMAGE', 'hex')
+const preimage = Buffer.from(PREIMAGE, 'hex')
 
 // Scenario 1
 // Happy case: Swap Provider is able to spend the P2WSH
