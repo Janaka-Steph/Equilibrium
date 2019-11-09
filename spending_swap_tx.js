@@ -14,34 +14,49 @@ const bip65 = require('bip65')
  * timelock
  */
 
+let IS_CLAIM = null
 let TX_ID = null
 let TX_VOUT = null
 let PREIMAGE = null
 let WITNESS_SCRIPT = null
 let TIMELOCK = null
 
-if (process.argv.length !== 7) {
-  console.log('Incorrect number of arguments')
-  console.log('Arguments must be: TX_ID  TX_VOUT  PREIMAGE  WITNESS_SCRIPT  TIMELOCK')
+const argMessage = 'Arguments must be: [CLAIM/REFUND] TX_ID TX_VOUT WITNESS_SCRIPT TIMELOCK [PREIMAGE] \n\nThis script will generate a transaction which spends from a lighting atomic swap.';
+
+if (process.argv[2] === undefined || process.argv[2].toLowerCase() !== 'refund' && process.argv[2].toLowerCase() !== 'claim') {
+  console.log('You must specify whether this is a refund or a claim')
+  console.log(argMessage)
+  return
+}
+
+IS_CLAIM = process.argv[2].toLowerCase() === 'claim';
+
+if (IS_CLAIM && process.argv.length !== 8) {
+  console.log(`Incorrect number of arguments. Supplied: ${process.argv.length - 2}, required: 6`)
+  console.log(argMessage)
+  return
+} else if (!IS_CLAIM && process.argv.length !== 7) {
+  console.log(`Incorrect number of arguments. Supplied: ${process.argv.length - 2}, required: 5`)
+  console.log(argMessage)
   return
 }
 
 process.argv.forEach((value, index) => {
   switch (index) {
-    case 2:
+    case 3:
       TX_ID = value
       break
-    case 3:
-      TX_VOUT = Number(value)
-      break
     case 4:
-      PREIMAGE = value
+      TX_VOUT = Number(value)
       break
     case 5:
       WITNESS_SCRIPT = value
       break
     case 6:
-      TIMELOCK =  Number(value)
+      TIMELOCK = Number(value)
+      break
+    case 7:
+      PREIMAGE = value
       break
   }
 })
@@ -57,7 +72,7 @@ const p2wpkhSwapProvider = bitcoin.payments.p2wpkh({pubkey: keyPairSwapProvider.
 const txb = new bitcoin.TransactionBuilder(network)
 
 const timelock = bip65.encode({ blocks: TIMELOCK })
-console.log('timelock  ', timelock)
+// console.log('timelock  ', timelock)
 txb.setLockTime(timelock)
 
 // txb.addInput(prevTx, vout, sequence, prevTxScript)
@@ -75,40 +90,43 @@ const witnessScript = Buffer.from(WITNESS_SCRIPT, 'hex')
 const signatureHash = tx.hashForWitnessV0(0, witnessScript, 1e3, hashType)
 console.log('signature hash: ', signatureHash.toString('hex'))
 
-const preimage = Buffer.from(PREIMAGE, 'hex')
+if (IS_CLAIM) {
+  const preimage = Buffer.from(PREIMAGE, 'hex')
 
-// Scenario 1
-// Happy case: Swap Provider is able to spend the P2WSH
-const witnessStackFirstBranch = bitcoin.payments.p2wsh({
-  redeem: {
-    input: bitcoin.script.compile([
-      bitcoin.script.signature.encode(keyPairSwapProvider.sign(signatureHash), hashType),
-      preimage
-    ]),
-    output: witnessScript
-  }
-}).witness
+  // Scenario 1
+  // Happy case: Swap Provider is able to spend the P2WSH
+  const witnessStackClaimBranch = bitcoin.payments.p2wsh({
+    redeem: {
+      input: bitcoin.script.compile([
+        bitcoin.script.signature.encode(keyPairSwapProvider.sign(signatureHash), hashType),
+        preimage
+      ]),
+      output: witnessScript
+    }
+  }).witness
 
-console.log('First branch witness stack  ', witnessStackFirstBranch.map(x => x.toString('hex')))
+  console.log('First branch witness stack  ', witnessStackClaimBranch.map(x => x.toString('hex')))
 
-// Scenario 2
-// Failure case: User is able to get a refund after the timelock has expired
-const witnessStackSecondBranch = bitcoin.payments.p2wsh({
-  redeem: {
-    input: bitcoin.script.compile([
-      bitcoin.script.signature.encode(keyPairUser.sign(signatureHash), hashType),
-      Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
-    ]),
-    output: witnessScript
-  }
-}).witness
+  tx.setWitness(0, witnessStackClaimBranch)
+  console.log('Claim transaction:')
+} else {
+  // Scenario 2
+  // Failure case: User is able to get a refund after the timelock has expired
+  const witnessStackRefundBranch = bitcoin.payments.p2wsh({
+    redeem: {
+      input: bitcoin.script.compile([
+        bitcoin.script.signature.encode(keyPairUser.sign(signatureHash), hashType),
+        Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
+      ]),
+      output: witnessScript
+    }
+  }).witness
 
-console.log('Second branch witness stack  ', witnessStackSecondBranch.map(x => x.toString('hex')))
+  console.log('Second branch witness stack  ', witnessStackRefundBranch.map(x => x.toString('hex')))
 
-// Choose a scenario and set the witness stack
-tx.setWitness(0, witnessStackFirstBranch)
-//tx.setWitness(0, witnessStackSecondBranch)
-
+  tx.setWitness(0, witnessStackRefundBranch)
+  console.log('Refund transaction:')
+}
 
 // Print
-console.log('tx.toHex  ', tx.toHex())
+console.log(tx.toHex())
