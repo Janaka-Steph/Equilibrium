@@ -41,13 +41,16 @@ $ node swap_p2wsh.js PAYMENT_HASH  TIMELOCK  [PREIMAGE]
 
 $ sendtoaddress <p2wsh_addr> 0.000012
 
-### 5. Swap Provider pays the invoice in order to get the preimage 
+### 5. Swap Provider must pay the invoice in order to get the preimage that allows him to redeem the on-chain funds
 $ lncli-sp payinvoice <payment_request>
 
 ### 6. Swap Provider redeem the funds locked in P2WSH swap smart contract
 > bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
    
 $ node spending_swap_tx.js TX_ID  TX_VOUT  PREIMAGE  WITNESS_SCRIPT  TIMELOCK
+
+$ sendrawtransaction <TX_HEX>
+$ getrawtransaction <TX_ID>
 
 ### 7. Mine a block
 $ bitcoin-cli getnewaddress

@@ -63,16 +63,18 @@ txb.setLockTime(timelock)
 // txb.addInput(prevTx, vout, sequence, prevTxScript)
 txb.addInput(TX_ID, TX_VOUT, 0xfffffffe)
 
-// 0.000008 BTC  -- 800 sats
-txb.addOutput(p2wpkhSwapProvider.address, 8e2)
+// 0.00001 BTC  -- 1000 sats
+txb.addOutput(p2wpkhSwapProvider.address, 1e3)
 console.log('Swap provider redeem address', p2wpkhSwapProvider.address)
+
+// 1200 - 1000 = 200 satoshis goes in mining fees
 
 const tx = txb.buildIncomplete()
 
 // hashForWitnessV0(inIndex, prevOutScript, value, hashType)
-// amount: 0.00001 -- 1000 sats
+// Funding transaction amount: 0.000012 -- 1200 sats
 const witnessScript = Buffer.from(WITNESS_SCRIPT, 'hex')
-const signatureHash = tx.hashForWitnessV0(0, witnessScript, 1e3, hashType)
+const signatureHash = tx.hashForWitnessV0(0, witnessScript, 12e2, hashType)
 console.log('signature hash: ', signatureHash.toString('hex'))
 
 const preimage = Buffer.from(PREIMAGE, 'hex')
