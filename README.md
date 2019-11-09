@@ -15,6 +15,7 @@ Lightning invoice of the user.
 
 You need a work environment with Bitcoin Core on regtest and two LND nodes connected to it. 
 One LND is the Swap Provider, the other is the Bitcoin user.
+For simplicity we create a direct channel between them.
 
 $ npm install  
 $ npm run wallets
@@ -24,13 +25,13 @@ $ npm run wallets
 ## Swapping Process
 
 ### 1. User generates a LN invoice asking for 1000 satoshis  
-$ lncli addinvoice 1000 [PREIMAGE]  
+$ lncli-user addinvoice 1000 [PREIMAGE]  
 returns <payment_request>
 
 ### 2. User shows the invoice to the Swap Provider
 
 ### 3. Swap Provider extract the payment hash - sha256(preimage)
-$ lncli decodepayreq <payment_request>
+$ lncli-sp decodepayreq <payment_request>
 
 ### 4. Swap Provider generates the P2WSH address from the swap witness script
 $ node swap_p2wsh.js PAYMENT_HASH  TIMELOCK  [PREIMAGE]
@@ -41,7 +42,7 @@ $ node swap_p2wsh.js PAYMENT_HASH  TIMELOCK  [PREIMAGE]
 $ sendtoaddress <p2wsh_addr> 0.000012
 
 ### 5. Swap Provider pays the invoice in order to get the preimage 
-$ lncli payinvoice <payment_request>
+$ lncli-sp payinvoice <payment_request>
 
 ### 6. Swap Provider redeem the funds locked in P2WSH swap smart contract
 > bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
@@ -58,4 +59,4 @@ $ bitcoin-cli generatetoaddress 1 ADDR
 $ bitcoin-cli scantxoutset start '["addr(bcrt1qlwyzpu67l7s9gwv4gzuv4psypkxa4fx4ggs05g)"]'
 
 ### 9. Check that the user received his money off-chain
-$ lncli channelbalance
+$ lncli-user channelbalance
