@@ -65,6 +65,7 @@ txb.addInput(TX_ID, TX_VOUT, 0xfffffffe)
 
 // 0.000008 BTC  -- 800 sats
 txb.addOutput(p2wpkhSwapProvider.address, 8e2)
+console.log('Swap provider redeem address', p2wpkhSwapProvider.address)
 
 const tx = txb.buildIncomplete()
 
@@ -95,9 +96,7 @@ console.log('First branch witness stack  ', witnessStackFirstBranch.map(x => x.t
 const witnessStackSecondBranch = bitcoin.payments.p2wsh({
   redeem: {
     input: bitcoin.script.compile([
-      bitcoin.script.signature.encode(keyPairSwapProvider.sign(signatureHash), hashType),
-      bitcoin.script.signature.encode(keyPairUser.sign(signatureHash), hashType),
-      bitcoin.opcodes.OP_FALSE
+      bitcoin.script.signature.encode(keyPairUser.sign(signatureHash), hashType)
     ]),
     output: witnessScript
   }

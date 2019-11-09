@@ -24,3 +24,12 @@ $ lncli payinvoice <pay_req>
 > bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
    
 $ node spending_swap_tx.js TX_ID  TX_VOUT  PREIMAGE  WITNESS_SCRIPT  TIMELOCK
+
+### 7. Mine a block
+$ bitcoin-cli getnewaddress
+$ bitcoin-cli generatetoaddress 1 ADDR
+
+### 8. Check that the Swap Provider received his money
+> Swap Provider redeem address is alice1 p2wpkh address
+
+$ bitcoin-cli scantxoutset start '["addr(bcrt1qlwyzpu67l7s9gwv4gzuv4psypkxa4fx4ggs05g)"]'
