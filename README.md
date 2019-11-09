@@ -21,4 +21,6 @@ $ sendtoaddress <p2wsh_addr> 0.00001
 $ lncli payinvoice <pay_req>
 
 ### 6. Swap Provider spends the P2WSH
+> bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
+   
 $ node spending_swap_tx.js TX_ID  TX_VOUT  PREIMAGE  WITNESS_SCRIPT  TIMELOCK
