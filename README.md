@@ -58,7 +58,7 @@ $ lncli-sp payinvoice <payment_request>
 #### 7. Swap Provider redeem the funds locked in P2WSH swap smart contract
 > bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
 ```
-$ node spending_swap_tx.js claim TX_ID TX_VOUT  PREIMAGE  WITNESS_SCRIPT  TIMELOCK
+$ node spending_swap_tx.js claim TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK  PREIMAGE
 $ sendrawtransaction <TX_HEX>
 $ getrawtransaction <TX_ID>
 ```
