@@ -3,7 +3,7 @@
 A user wants off-chain funds by paying a swap provider on chain. 
 
 ### 1. User generates a LN invoice   
-$ lncli addinvoice 100000 [<chosen_preimage>]  
+$ lncli addinvoice 1000 [<chosen_preimage>]  
 <pay_req>
 
 ### 2. User gives the invoice to the Swap Provider

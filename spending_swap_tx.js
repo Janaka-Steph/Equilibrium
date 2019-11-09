@@ -31,14 +31,15 @@ txb.setLockTime(timelock)
 // txb.addInput(prevTx, vout, sequence, prevTxScript)
 txb.addInput('TX_ID', TX_VOUT, 0xfffffffe)
 
-// 0.099 BTC
-txb.addOutput(p2wpkhSwapProvider.address, 99e5)
+// 0.000009 BTC  -- 900 sats
+txb.addOutput(p2wpkhSwapProvider.address, 9e2)
 
 const tx = txb.buildIncomplete()
 
 // hashForWitnessV0(inIndex, prevOutScript, value, hashType)
+// amount: 0.00001 -- 1000 sats
 const witnessScript = Buffer.from('WITNESS_SCRIPT', 'hex')
-const signatureHash = tx.hashForWitnessV0(0, witnessScript, 1e7, hashType)
+const signatureHash = tx.hashForWitnessV0(0, witnessScript, 1e3, hashType)
 console.log('signature hash: ', signatureHash.toString('hex'))
 
 const preimage = Buffer.from('PREIMAGE', 'hex')
