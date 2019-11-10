@@ -9,13 +9,13 @@ const IS_ONCHAIN_TO_OFFCHAIN = process.argv[3] ? (process.argv[3].toLowerCase() 
 const TX_ID = process.argv[4] ? process.argv[4] : null
 const TX_VOUT =  process.argv[5] ? Number(process.argv[5]) : null
 const WITNESS_SCRIPT = process.argv[6] ? process.argv[6] : null
-const TIMELOCK = process.argv[7] ? Number(process.argv[7]) : null
+const TIMELOCK = process.argv[7] ? Number(process.argv[7]) : 1
 const PREIMAGE = process.argv[8] ? Buffer.from(process.argv[8], 'hex') : null
 
-const argMessage = 'Arguments must be: [claim/refund] [on2off/off2on] TX_ID TX_VOUT WITNESS_SCRIPT TIMELOCK [PREIMAGE] \n\nThis script will generate a transaction which spends from a lighting submarine swap.'
+const argMessage = 'Arguments must be: [claim/refund] [on2off/off2on] TX_ID TX_VOUT WITNESS_SCRIPT [TIMELOCK] [PREIMAGE] \n\nThis script will generate a transaction which spends from a lighting submarine swap.'
 
-if (IS_CLAIM && process.argv.length !== 9) {
-  console.log(`Incorrect number of arguments. Supplied: ${process.argv.length - 2}, required: 6`)
+if (IS_CLAIM && !(process.argv.length >= 7)) {
+  console.log(`Incorrect number of arguments. Supplied: ${process.argv.length - 2}, required at least 5`)
   console.log(argMessage)
   return
 } else if (!IS_CLAIM && process.argv.length !== 8) {
@@ -47,7 +47,7 @@ const p2wpkhSwapProvider = bitcoin.payments.p2wpkh({pubkey: keyPairSwapProvider.
 const txb = new bitcoin.TransactionBuilder(network)
 
 const timelock = bip65.encode({ blocks: TIMELOCK })
-console.log('Block height timelock  ', timelock)
+console.log('Block height timelock: ', timelock)
 txb.setLockTime(timelock)
 
 // txb.addInput(prevTx, vout, sequence, prevTxScript)
