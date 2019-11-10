@@ -14,12 +14,6 @@ const PREIMAGE = process.argv[8] ? Buffer.from(process.argv[8], 'hex') : null
 
 const argMessage = 'Arguments must be: [claim/refund] [on2off/off2on] TX_ID TX_VOUT WITNESS_SCRIPT TIMELOCK [PREIMAGE] \n\nThis script will generate a transaction which spends from a lighting submarine swap.'
 
-if (IS_CLAIM === undefined || process.argv[2].toLowerCase() !== 'refund' && process.argv[2].toLowerCase() !== 'claim') {
-  console.log('You must specify whether this is a refund or a claim')
-  console.log(argMessage)
-  return
-}
-
 if (IS_CLAIM && process.argv.length !== 9) {
   console.log(`Incorrect number of arguments. Supplied: ${process.argv.length - 2}, required: 6`)
   console.log(argMessage)
@@ -30,7 +24,13 @@ if (IS_CLAIM && process.argv.length !== 9) {
   return
 }
 
-if (IS_ONCHAIN_TO_OFFCHAIN === undefined || process.argv[3].toLowerCase() !== 'on2off' && process.argv[3].toLowerCase() !== 'off2on') {
+if (IS_CLAIM === null || process.argv[2].toLowerCase() !== 'refund' && process.argv[2].toLowerCase() !== 'claim') {
+  console.log('You must specify whether this is a refund or a claim')
+  console.log(argMessage)
+  return
+}
+
+if (IS_ONCHAIN_TO_OFFCHAIN === null || process.argv[3].toLowerCase() !== 'on2off' && process.argv[3].toLowerCase() !== 'off2on') {
   console.log('You must specify whether this is an on-chain to off-chain or off-chain to on-chain swap')
   console.log(argMessage)
   return

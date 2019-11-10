@@ -17,7 +17,7 @@ if (process.argv.length !== 5 && process.argv.length !== 6) {
   return
 }
 
-if (process.argv[2] !== 'on2off' && process.argv[2] !== 'off2on') {
+if (process.argv[2].toLowerCase() !== 'on2off' && process.argv[2].toLowerCase() !== 'off2on') {
     console.log('First argument must be either on2off or off2on')
     console.log(helpString)
     return
