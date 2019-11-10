@@ -11,25 +11,37 @@ const bip65 = require('bip65')
  * timelock
  */
 
+let IS_ONCHAIN_TO_OFFCHAIN = null 
 let PAYMENT_HASH = null
 let TIMELOCK = null
 let PREIMAGE = null
 
-if (process.argv.length !== 4 && process.argv.length !== 5) {
+const helpString = 'Arguments must be: [ONTOOFF/OFFTOON] PAYMENT_HASH  TIMELOCK  [PREIMAGE]'
+
+if (process.argv.length !== 5 && process.argv.length !== 6) {
   console.log('Incorrect number of arguments')
-  console.log('Arguments must be: PAYMENT_HASH  TIMELOCK  [PREIMAGE]')
+  console.log(helpString)
   return
+}
+
+if (process.argv[2] !== 'ontooff' && process.argv[2] !== 'offtoon') {
+    console.log('First argument must be either ontooff or offtoon')
+    console.log(helpString)
+    return
 }
 
 process.argv.forEach((value, index) => {
   switch (index) {
     case 2:
+        IS_ONCHAIN_TO_OFFCHAIN = value === 'ontooff'
+        break
+    case 3:
       PAYMENT_HASH = value
       break
-    case 3:
+    case 4:
       TIMELOCK = Number(value)
       break
-    case 4:
+    case 5:
       PREIMAGE = value
       break
   }
@@ -60,7 +72,13 @@ const timelock = bip65.encode({ blocks: TIMELOCK })
 console.log('timelock  ', timelock)
 
 // Generate witness script
-const witnessScript = swapScript(keyPairSwapProvider, keyPairUser, paymentHash, timelock)
+let witnessScript;
+
+if (IS_ONCHAIN_TO_OFFCHAIN) {
+    witnessScript =  swapScript(keyPairSwapProvider, keyPairUser, paymentHash, timelock)
+} else {
+    witnessScript =  swapScript(keyPairUser, keyPairSwapProvider, paymentHash, timelock)
+}
 console.log('witnessScript  ', witnessScript.toString('hex'))
 
 // Get P2WSH address

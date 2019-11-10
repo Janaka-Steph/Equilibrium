@@ -15,13 +15,14 @@ const bip65 = require('bip65')
  */
 
 let IS_CLAIM = null
+let IS_ONCHAIN_TO_OFFCHAIN = null
 let TX_ID = null
 let TX_VOUT = null
 let PREIMAGE = null
 let WITNESS_SCRIPT = null
 let TIMELOCK = null
 
-const argMessage = 'Arguments must be: [CLAIM/REFUND] TX_ID TX_VOUT WITNESS_SCRIPT TIMELOCK [PREIMAGE] \n\nThis script will generate a transaction which spends from a lighting atomic swap.';
+const argMessage = 'Arguments must be: [CLAIM/REFUND] [ONTOOFF/OFFTOON] TX_ID TX_VOUT WITNESS_SCRIPT TIMELOCK [PREIMAGE] \n\nThis script will generate a transaction which spends from a lighting atomic swap.';
 
 if (process.argv[2] === undefined || process.argv[2].toLowerCase() !== 'refund' && process.argv[2].toLowerCase() !== 'claim') {
   console.log('You must specify whether this is a refund or a claim')
@@ -29,13 +30,19 @@ if (process.argv[2] === undefined || process.argv[2].toLowerCase() !== 'refund' 
   return
 }
 
+if (process.argv[3] === undefined || process.argv[3].toLowerCase() !== 'ontooff' && process.argv[3].toLowerCase() !== 'offtoon') {
+  console.log('You must specify whether this is an on-chain-to-off-chain or off-chain-to-on-chain swap')
+  console.log(argMessage)
+  return
+}
+
 IS_CLAIM = process.argv[2].toLowerCase() === 'claim';
 
-if (IS_CLAIM && process.argv.length !== 8) {
+if (IS_CLAIM && process.argv.length !== 9) {
   console.log(`Incorrect number of arguments. Supplied: ${process.argv.length - 2}, required: 6`)
   console.log(argMessage)
   return
-} else if (!IS_CLAIM && process.argv.length !== 7) {
+} else if (!IS_CLAIM && process.argv.length !== 8) {
   console.log(`Incorrect number of arguments. Supplied: ${process.argv.length - 2}, required: 5`)
   console.log(argMessage)
   return
@@ -44,18 +51,21 @@ if (IS_CLAIM && process.argv.length !== 8) {
 process.argv.forEach((value, index) => {
   switch (index) {
     case 3:
-      TX_ID = value
+      IS_ONCHAIN_TO_OFFCHAIN = value === 'ontooff'
       break
     case 4:
-      TX_VOUT = Number(value)
+      TX_ID = value
       break
     case 5:
-      WITNESS_SCRIPT = value
+      TX_VOUT = Number(value)
       break
     case 6:
-      TIMELOCK = Number(value)
+      WITNESS_SCRIPT = value
       break
     case 7:
+      TIMELOCK = Number(value)
+      break
+    case 8:
       PREIMAGE = value
       break
   }
@@ -94,15 +104,27 @@ console.log('signature hash: ', signatureHash.toString('hex'))
 
 if (IS_CLAIM) {
   const preimage = Buffer.from(PREIMAGE, 'hex')
+  let input;
+
+  if (IS_ONCHAIN_TO_OFFCHAIN) {
+    // The swap provide signs and claims his money
+    input = bitcoin.script.compile([
+      bitcoin.script.signature.encode(keyPairSwapProvider.sign(signatureHash), hashType),
+      preimage
+    ])
+  } else {
+    // The user signs and claims his money
+    input = bitcoin.script.compile([
+      bitcoin.script.signature.encode(keyPairUser.sign(signatureHash), hashType),
+      preimage
+    ])
+  }
 
   // Scenario 1
   // Happy case: Swap Provider is able to spend the P2WSH
   const witnessStackClaimBranch = bitcoin.payments.p2wsh({
     redeem: {
-      input: bitcoin.script.compile([
-        bitcoin.script.signature.encode(keyPairSwapProvider.sign(signatureHash), hashType),
-        preimage
-      ]),
+      input,
       output: witnessScript
     }
   }).witness
