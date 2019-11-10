@@ -4,39 +4,21 @@ const network = bitcoin.networks.regtest
 const hashType = bitcoin.Transaction.SIGHASH_ALL
 const bip65 = require('bip65')
 
-/**
- * To Change
- *
- * TX_ID
- * TX_VOUT
- * preimage
- * witnessScript
- * timelock
- */
+const IS_CLAIM = (process.argv[2].toLowerCase() === 'claim')
+const IS_ONCHAIN_TO_OFFCHAIN = (process.argv[3].toLowerCase() === 'on2off')
+const TX_ID = process.argv[4].toLowerCase()
+const TX_VOUT =  Number(process.argv[5])
+const WITNESS_SCRIPT = process.argv[6].toLowerCase()
+const TIMELOCK = Number(process.argv[7])
+const PREIMAGE = Buffer.from(process.argv[8].toLowerCase(), 'hex')
 
-let IS_CLAIM = null
-let IS_ONCHAIN_TO_OFFCHAIN = null
-let TX_ID = null
-let TX_VOUT = null
-let PREIMAGE = null
-let WITNESS_SCRIPT = null
-let TIMELOCK = null
+const argMessage = 'Arguments must be: [claim/refund] [on2off/off2on] TX_ID TX_VOUT WITNESS_SCRIPT TIMELOCK [PREIMAGE] \n\nThis script will generate a transaction which spends from a lighting submarine swap.'
 
-const argMessage = 'Arguments must be: [CLAIM/REFUND] [ONTOOFF/OFFTOON] TX_ID TX_VOUT WITNESS_SCRIPT TIMELOCK [PREIMAGE] \n\nThis script will generate a transaction which spends from a lighting atomic swap.';
-
-if (process.argv[2] === undefined || process.argv[2].toLowerCase() !== 'refund' && process.argv[2].toLowerCase() !== 'claim') {
+if (IS_CLAIM === undefined || process.argv[2].toLowerCase() !== 'refund' && process.argv[2].toLowerCase() !== 'claim') {
   console.log('You must specify whether this is a refund or a claim')
   console.log(argMessage)
   return
 }
-
-if (process.argv[3] === undefined || process.argv[3].toLowerCase() !== 'ontooff' && process.argv[3].toLowerCase() !== 'offtoon') {
-  console.log('You must specify whether this is an on-chain-to-off-chain or off-chain-to-on-chain swap')
-  console.log(argMessage)
-  return
-}
-
-IS_CLAIM = process.argv[2].toLowerCase() === 'claim';
 
 if (IS_CLAIM && process.argv.length !== 9) {
   console.log(`Incorrect number of arguments. Supplied: ${process.argv.length - 2}, required: 6`)
@@ -48,28 +30,11 @@ if (IS_CLAIM && process.argv.length !== 9) {
   return
 }
 
-process.argv.forEach((value, index) => {
-  switch (index) {
-    case 3:
-      IS_ONCHAIN_TO_OFFCHAIN = value === 'ontooff'
-      break
-    case 4:
-      TX_ID = value
-      break
-    case 5:
-      TX_VOUT = Number(value)
-      break
-    case 6:
-      WITNESS_SCRIPT = value
-      break
-    case 7:
-      TIMELOCK = Number(value)
-      break
-    case 8:
-      PREIMAGE = value
-      break
-  }
-})
+if (IS_ONCHAIN_TO_OFFCHAIN === undefined || process.argv[3].toLowerCase() !== 'on2off' && process.argv[3].toLowerCase() !== 'off2on') {
+  console.log('You must specify whether this is an on-chain to off-chain or off-chain to on-chain swap')
+  console.log(argMessage)
+  return
+}
 
 // Signers
 const keyPairSwapProvider = bitcoin.ECPair.fromWIF(alice[1].wif, network)
@@ -78,11 +43,11 @@ const keyPairUser = bitcoin.ECPair.fromWIF(bob[1].wif, network)
 // Recipient
 const p2wpkhSwapProvider = bitcoin.payments.p2wpkh({pubkey: keyPairSwapProvider.publicKey, network})
 
-// Build spending transaction
+// Build spending from swap transaction
 const txb = new bitcoin.TransactionBuilder(network)
 
 const timelock = bip65.encode({ blocks: TIMELOCK })
-// console.log('timelock  ', timelock)
+console.log('Block height timelock  ', timelock)
 txb.setLockTime(timelock)
 
 // txb.addInput(prevTx, vout, sequence, prevTxScript)
@@ -90,7 +55,7 @@ txb.addInput(TX_ID, TX_VOUT, 0xfffffffe)
 
 // 0.00001 BTC  -- 1000 sats
 txb.addOutput(p2wpkhSwapProvider.address, 1e3)
-console.log('Swap provider redeem address', p2wpkhSwapProvider.address)
+console.log('Swap provider redeem address: ', p2wpkhSwapProvider.address)
 
 // 1200 - 1000 = 200 satoshis goes in mining fees
 
@@ -100,23 +65,22 @@ const tx = txb.buildIncomplete()
 // Funding transaction amount: 0.000012 -- 1200 sats
 const witnessScript = Buffer.from(WITNESS_SCRIPT, 'hex')
 const signatureHash = tx.hashForWitnessV0(0, witnessScript, 12e2, hashType)
-console.log('signature hash: ', signatureHash.toString('hex'))
+console.log('Signature hash: ', signatureHash.toString('hex'))
 
 if (IS_CLAIM) {
-  const preimage = Buffer.from(PREIMAGE, 'hex')
-  let input;
+  let input
 
   if (IS_ONCHAIN_TO_OFFCHAIN) {
-    // The swap provide signs and claims his money
+    // The swap provider signs and claims his money
     input = bitcoin.script.compile([
       bitcoin.script.signature.encode(keyPairSwapProvider.sign(signatureHash), hashType),
-      preimage
+      PREIMAGE
     ])
   } else {
     // The user signs and claims his money
     input = bitcoin.script.compile([
       bitcoin.script.signature.encode(keyPairUser.sign(signatureHash), hashType),
-      preimage
+      PREIMAGE
     ])
   }
 

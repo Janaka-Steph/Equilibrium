@@ -6,12 +6,12 @@ const swapScript = function(claimPublicKey, refundPublicKey, preimageHash, cltv)
     bitcoin.crypto.ripemd160(preimageHash), // HASH160 of invoice payment hash
     bitcoin.opcodes.OP_EQUAL,
     bitcoin.opcodes.OP_IF,
-    claimPublicKey.publicKey,  // Swap provider
+    claimPublicKey.publicKey,
     bitcoin.opcodes.OP_ELSE,
     bitcoin.script.number.encode(cltv),
     bitcoin.opcodes.OP_CHECKLOCKTIMEVERIFY,
     bitcoin.opcodes.OP_DROP,
-    refundPublicKey.publicKey, // User
+    refundPublicKey.publicKey,
     bitcoin.opcodes.OP_ENDIF,
     bitcoin.opcodes.OP_CHECKSIG,
   ])
