@@ -48,7 +48,8 @@ $ node swap_p2wsh.js on2off PAYMENT_HASH  TIMELOCK  [PREIMAGE]
 ```
 
 #### 5. User sends 1200 satoshis to the P2WSH swap smart contract address
-> He pays 200 satoshis more to compensate for the mining fees that the Swap Provider will have to pay to redeem the funds
+> User pays 200 satoshis more to compensate for the mining fees that the Swap Provider will have to pay to redeem the funds.  
+> bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT) for step 7.
 ```
 $ sendtoaddress <p2wsh_addr> 0.000012
 ```
@@ -59,7 +60,6 @@ $ lncli-sp payinvoice <payment_request>
 ```
 
 #### 7. Happy case: swap provider redeems the funds locked in the P2WSH swap smart contract
-> bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
 ```
 $ node spending_swap_tx.js claim on2off TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK  PREIMAGE
 $ sendrawtransaction <TX_HEX>
@@ -67,7 +67,6 @@ $ getrawtransaction <TX_ID>
 ```
 
 #### 7 bis. Failure case: user redeems the funds locked in P2WSH swap smart contract
-> bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
 ```
 $ node spending_swap_tx.js refund on2off TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK   
 $ sendrawtransaction <TX_HEX>
@@ -109,6 +108,7 @@ $ node swap_p2wsh.js off2on PAYMENT_HASH  TIMELOCK  [PREIMAGE]
 ```
 
 #### 3. Swap provider sends 1200 satoshis to the P2WSH swap smart contract address
+> bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT) for step 6
 ```
 $ sendtoaddress <p2wsh_addr> 0.000012
 ```
@@ -121,7 +121,6 @@ $ lncli-user payinvoice <payment_request>
 ```
 
 #### 6. Happy case: user redeems the funds locked in the P2WSH swap smart contract
-> bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
 ```
 $ node spending_swap_tx.js claim off2on TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK  PREIMAGE
 $ sendrawtransaction <TX_HEX>
@@ -129,7 +128,6 @@ $ getrawtransaction <TX_ID>
 ```
 
 #### 6 bis. Failure case: swap provider redeems the funds locked in the P2WSH swap smart contract
-> bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
 ```
 $ node spending_swap_tx.js refund off2on TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK
 $ sendrawtransaction <TX_HEX>
