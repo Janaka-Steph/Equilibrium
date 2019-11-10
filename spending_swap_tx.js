@@ -98,14 +98,24 @@ if (IS_CLAIM) {
   tx.setWitness(0, witnessStackClaimBranch)
   console.log('Claim transaction:')
 } else {
+  let input
+  if (IS_ONCHAIN_TO_OFFCHAIN) {
+    input = bitcoin.script.compile([
+      bitcoin.script.signature.encode(keyPairUser.sign(signatureHash), hashType),
+      Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
+    ])
+  } else {
+    input = bitcoin.script.compile([
+      bitcoin.script.signature.encode(keyPairSwapProvider.sign(signatureHash), hashType),
+      Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
+    ])
+  }
+
   // Scenario 2
   // Failure case: User is able to get a refund after the timelock has expired
   const witnessStackRefundBranch = bitcoin.payments.p2wsh({
     redeem: {
-      input: bitcoin.script.compile([
-        bitcoin.script.signature.encode(keyPairUser.sign(signatureHash), hashType),
-        Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
-      ]),
+      input,
       output: witnessScript
     }
   }).witness
