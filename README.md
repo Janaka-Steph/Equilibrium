@@ -24,6 +24,9 @@ $ npm run wallets
 > It will generate a bunch of testing wallets and import the private keys in your running Bitcoin Core
 
 
+***
+
+
 ## Swapping Process: On-Chain To Off-Chain
 
 #### 1. User generates a LN invoice asking for 1000 satoshis 
@@ -87,6 +90,9 @@ $ bitcoin-cli scantxoutset start '["addr(bcrt1qlwyzpu67l7s9gwv4gzuv4psypkxa4fx4g
 ```
 $ lncli-user channelbalance
 ```
+
+
+***
 
 
 ## Swapping Process: Off-Chain To On-Chain
