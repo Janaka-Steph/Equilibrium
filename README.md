@@ -60,6 +60,7 @@ $ lncli-sp payinvoice <payment_request>
 ```
 
 #### 7. Happy case: swap provider redeems the funds locked in the P2WSH swap smart contract
+> TX_ID and TX_VOUT from step 5  
 ```
 $ node spending_swap_tx.js claim on2off TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK  PREIMAGE
 $ sendrawtransaction <TX_HEX>
@@ -96,9 +97,9 @@ $ lncli-user channelbalance
 
 ## Swapping Process: Off-Chain To On-Chain
 
-#### 1. Swap Provider generates a LN invoice asking for 1000 satoshis 
+#### 1. Swap Provider generates a LN invoice asking for 1200 satoshis 
 ``` 
-$ lncli-sp addinvoice 1000 [PREIMAGE]  
+$ lncli-sp addinvoice 1200 [PREIMAGE]  
 returns <payment_request>
 ```
 
@@ -121,6 +122,7 @@ $ lncli-user payinvoice <payment_request>
 ```
 
 #### 6. Happy case: user redeems the funds locked in the P2WSH swap smart contract
+> Input: 1200 sats > Output: 1000 sats
 ```
 $ node spending_swap_tx.js claim off2on TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK  PREIMAGE
 $ sendrawtransaction <TX_HEX>
@@ -128,6 +130,7 @@ $ getrawtransaction <TX_ID>
 ```
 
 #### 6 bis. Failure case: swap provider redeems the funds locked in the P2WSH swap smart contract
+> Input: 1200 sats > Output: 1000 sats
 ```
 $ node spending_swap_tx.js refund off2on TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK
 $ sendrawtransaction <TX_HEX>
