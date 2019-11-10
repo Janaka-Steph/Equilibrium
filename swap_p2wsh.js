@@ -4,10 +4,10 @@ const { alice, bob } = require('./wallets.json')
 const network = bitcoin.networks.regtest
 const bip65 = require('bip65')
 
-let IS_ONCHAIN_TO_OFFCHAIN = (process.argv[2].toLowerCase() === 'on2off')
-let PAYMENT_HASH = Buffer.from(process.argv[3].toLowerCase(), 'hex')
-let TIMELOCK = Number(process.argv[4])
-let PREIMAGE = Buffer.from(process.argv[5].toLowerCase(), 'hex')
+let IS_ONCHAIN_TO_OFFCHAIN = process.argv[2] ? (process.argv[2].toLowerCase() === 'on2off') : null
+let PAYMENT_HASH = process.argv[3] ? Buffer.from(process.argv[3], 'hex') : null
+let TIMELOCK = process.argv[4] ? Number(process.argv[4]) : null
+let PREIMAGE = process.argv[5] ? Buffer.from(process.argv[5], 'hex') : null
 
 const helpString = 'Arguments must be: [on2off/off2on] PAYMENT_HASH  TIMELOCK  [PREIMAGE]'
 

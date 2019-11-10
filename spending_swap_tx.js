@@ -4,13 +4,13 @@ const network = bitcoin.networks.regtest
 const hashType = bitcoin.Transaction.SIGHASH_ALL
 const bip65 = require('bip65')
 
-const IS_CLAIM = (process.argv[2].toLowerCase() === 'claim')
-const IS_ONCHAIN_TO_OFFCHAIN = (process.argv[3].toLowerCase() === 'on2off')
-const TX_ID = process.argv[4].toLowerCase()
-const TX_VOUT =  Number(process.argv[5])
-const WITNESS_SCRIPT = process.argv[6].toLowerCase()
-const TIMELOCK = Number(process.argv[7])
-const PREIMAGE = Buffer.from(process.argv[8].toLowerCase(), 'hex')
+const IS_CLAIM = process.argv[2] ? (process.argv[2].toLowerCase() === 'claim') : null
+const IS_ONCHAIN_TO_OFFCHAIN = process.argv[3] ? (process.argv[3].toLowerCase() === 'on2off') : null
+const TX_ID = process.argv[4] ? process.argv[4] : null
+const TX_VOUT =  process.argv[5] ? Number(process.argv[5]) : null
+const WITNESS_SCRIPT = process.argv[6] ? process.argv[6] : null
+const TIMELOCK = process.argv[7] ? Number(process.argv[7]) : null
+const PREIMAGE = process.argv[8] ? Buffer.from(process.argv[8], 'hex') : null
 
 const argMessage = 'Arguments must be: [claim/refund] [on2off/off2on] TX_ID TX_VOUT WITNESS_SCRIPT TIMELOCK [PREIMAGE] \n\nThis script will generate a transaction which spends from a lighting submarine swap.'
 
