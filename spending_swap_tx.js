@@ -1,41 +1,42 @@
+#!/usr/bin/env node
+
 const bitcoin = require('bitcoinjs-lib')
 const { alice, bob } = require('./wallets.json')
 const network = bitcoin.networks.regtest
 const hashType = bitcoin.Transaction.SIGHASH_ALL
 const bip65 = require('bip65')
+const argv = require('yargs')
+    .usage('Usage: spending_swap_tx --forward [boolean] --claim [boolean] --txid [string] --vout [num] --witness [string] --locktime [num] --preimage [string]')
+    .boolean('forward')
+    .boolean('claim')
+    .alias('t', 'txid')
+    .alias('l', 'locktime')
+    .alias('f', 'forward')
+    .alias('c', 'claim')
+    .alias('o', 'vout')
+    .alias('w', 'witness')
+    .alias('p', 'preimage')
+    .demand(['forward', 'claim', 'txid', 'vout', 'witness'])
+    .argv
 
-const IS_CLAIM = process.argv[2] ? (process.argv[2].toLowerCase() === 'claim') : null
-const IS_ONCHAIN_TO_OFFCHAIN = process.argv[3] ? (process.argv[3].toLowerCase() === 'on2off') : null
-const TX_ID = process.argv[4] ? process.argv[4] : null
-const TX_VOUT =  process.argv[5] ? Number(process.argv[5]) : null
-const WITNESS_SCRIPT = process.argv[6] ? Buffer.from(process.argv[6], 'hex') : null
-const TIMELOCK = process.argv[7] ? Number(process.argv[7]) : 1
-const PREIMAGE = process.argv[8] ? Buffer.from(process.argv[8], 'hex') : null
+const IS_CLAIM = argv.claim
+const IS_ONCHAIN_TO_OFFCHAIN = argv.forward
+const TX_ID = argv.txid
+const TX_VOUT = argv.vout
+const WITNESS_SCRIPT = Buffer.from(argv.witness, 'hex')
+const TIMELOCK = argv.locktime
+const PREIMAGE = argv.preimage ? Buffer.from(argv.preimage, 'hex') : null
 let signatureHash = null
 
-const argMessage = 'Arguments must be: [claim/refund] [on2off/off2on] TX_ID TX_VOUT WITNESS_SCRIPT [TIMELOCK] [PREIMAGE] \n\nThis script will generate a transaction which spends from a lighting submarine swap.'
-
-if (IS_CLAIM && !(process.argv.length >= 7)) {
-  console.log(`Incorrect number of arguments. Supplied: ${process.argv.length - 2}, required at least 5`)
-  console.log(argMessage)
-  return
-} else if (!IS_CLAIM && process.argv.length !== 8) {
-  console.log(`Incorrect number of arguments. Supplied: ${process.argv.length - 2}, required: 5`)
-  console.log(argMessage)
-  return
-}
-
-if (IS_CLAIM === null || process.argv[2].toLowerCase() !== 'refund' && process.argv[2].toLowerCase() !== 'claim') {
-  console.log('You must specify whether this is a refund or a claim')
-  console.log(argMessage)
-  return
-}
-
-if (IS_ONCHAIN_TO_OFFCHAIN === null || process.argv[3].toLowerCase() !== 'on2off' && process.argv[3].toLowerCase() !== 'off2on') {
-  console.log('You must specify whether this is an on-chain to off-chain or off-chain to on-chain swap')
-  console.log(argMessage)
-  return
-}
+// if (IS_CLAIM && !(process.argv.length >= 7)) {
+//   console.log(`Incorrect number of arguments. Supplied: ${process.argv.length - 2}, required at least 5`)
+//   console.log(argMessage)
+//   return
+// } else if (!IS_CLAIM && process.argv.length !== 8) {
+//   console.log(`Incorrect number of arguments. Supplied: ${process.argv.length - 2}, required: 5`)
+//   console.log(argMessage)
+//   return
+// }
 
 // Signers
 const keyPairSwapProvider = bitcoin.ECPair.fromWIF(alice[1].wif, network)
@@ -53,6 +54,7 @@ console.log('Block height timelock: ', timelock)
 txb.setLockTime(timelock)
 
 // txb.addInput(prevTx, vout, sequence, prevTxScript)
+console.log(TX_ID)
 txb.addInput(TX_ID, TX_VOUT, 0xfffffffe)
 
 // 0.00001 BTC  -- 1000 sats

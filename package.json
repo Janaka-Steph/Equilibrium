@@ -20,6 +20,7 @@
   "dependencies": {
     "bip65": "^1.0.3",
     "bitcoinjs-lib": "^4.0.5",
-    "bitcointestwalletsgenerator": "^1.0.2"
+    "bitcointestwalletsgenerator": "^1.0.2",
+    "yargs": "^14.2.0"
   }
 }

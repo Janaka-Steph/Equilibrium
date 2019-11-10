@@ -1,27 +1,23 @@
+#!/usr/bin/env node
+
 const swapScript = require('./swap_script')
 const bitcoin = require('bitcoinjs-lib')
 const { alice, bob } = require('./wallets.json')
 const network = bitcoin.networks.regtest
 const bip65 = require('bip65')
+const argv = require('yargs')
+    .usage('Usage: swap_p2wsh --forward [boolean] --rhash [string] --timelock [num] -preimage')
+    .boolean('forward')
+    .alias('r', 'rhash')
+    .alias('l', 'locktime')
+    .alias('f', 'forward')
+    .demand(['forward', 'rhash', 'timelock'])
+    .argv
 
-let IS_ONCHAIN_TO_OFFCHAIN = process.argv[2] ? (process.argv[2].toLowerCase() === 'on2off') : null
-let PAYMENT_HASH = process.argv[3] ? Buffer.from(process.argv[3], 'hex') : null
-let TIMELOCK = process.argv[4] ? Number(process.argv[4]) : null
-let PREIMAGE = process.argv[5] ? Buffer.from(process.argv[5], 'hex') : null
-
-const helpString = 'Arguments must be: [on2off/off2on] PAYMENT_HASH  TIMELOCK  [PREIMAGE]'
-
-if (process.argv.length !== 5 && process.argv.length !== 6) {
-  console.log('Incorrect number of arguments')
-  console.log(helpString)
-  return
-}
-
-if (process.argv[2].toLowerCase() !== 'on2off' && process.argv[2].toLowerCase() !== 'off2on') {
-    console.log('First argument must be either on2off or off2on')
-    console.log(helpString)
-    return
-}
+let IS_ONCHAIN_TO_OFFCHAIN = argv.forward
+let PAYMENT_HASH = argv.rhash
+let TIMELOCK = argv.locktime
+let PREIMAGE = argv.preimage
 
 // The LN invoice secret given in return for payment
 //console.log('Preimage:')
