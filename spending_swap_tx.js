@@ -72,15 +72,10 @@ if (IS_ONCHAIN_TO_OFFCHAIN && IS_CLAIM) {
 
 const tx = txb.buildIncomplete()
 
-if (IS_ONCHAIN_TO_OFFCHAIN) {
-  // Funding transaction amount: 0.000012 -- 1200 sats
-  // 1200 - 1000 = 200 satoshis goes in mining fees
-  signatureHash = tx.hashForWitnessV0(0, WITNESS_SCRIPT, 12e2, hashType)
-} else {
-  // Funding transaction amount: 0.00001 -- 1000 sats
-  // 1000 - 800 = 200 satoshis goes in mining fees
-  signatureHash = tx.hashForWitnessV0(0, WITNESS_SCRIPT, 1e3, hashType)
-}
+// Funding transaction amount: 0.000012 -- 1200 sats
+// 1200 - 1000 = 200 satoshis goes in mining fees
+signatureHash = tx.hashForWitnessV0(0, WITNESS_SCRIPT, 12e2, hashType)
+
 console.log('Signature hash: ', signatureHash.toString('hex'))
 
 if (IS_CLAIM) {
