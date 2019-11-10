@@ -24,7 +24,7 @@ $ npm run wallets
 > It will generate a bunch of testing wallets and import the private keys in your running Bitcoin Core
 
 
-## Swapping Process: On-Chain-To-Off-Chain
+## Swapping Process: On-Chain To Off-Chain
 
 #### 1. User generates a LN invoice asking for 1000 satoshis 
 ``` 
@@ -41,7 +41,7 @@ $ lncli-sp decodepayreq <payment_request>
 
 #### 4. Swap Provider generates the P2WSH address from the swap witness script
 ```
-$ node swap_p2wsh.js ontooff PAYMENT_HASH  TIMELOCK  [PREIMAGE]
+$ node swap_p2wsh.js on2off PAYMENT_HASH  TIMELOCK  [PREIMAGE]
 ```
 
 #### 5. User sends 1200 satoshis to the P2WSH swap smart contract address
@@ -55,10 +55,18 @@ $ sendtoaddress <p2wsh_addr> 0.000012
 $ lncli-sp payinvoice <payment_request>
 ```
 
-#### 7. Swap Provider redeem the funds locked in P2WSH swap smart contract
+#### 7. Happy case: swap provider redeems the funds locked in the P2WSH swap smart contract
 > bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
 ```
-$ node spending_swap_tx.js claim ontooff TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK  PREIMAGE
+$ node spending_swap_tx.js claim on2off TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK  PREIMAGE
+$ sendrawtransaction <TX_HEX>
+$ getrawtransaction <TX_ID>
+```
+
+#### 7 bis. Failure case: user redeems the funds locked in P2WSH swap smart contract
+> bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
+```
+$ node spending_swap_tx.js refund on2off TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK   
 $ sendrawtransaction <TX_HEX>
 $ getrawtransaction <TX_ID>
 ```
@@ -80,7 +88,8 @@ $ bitcoin-cli scantxoutset start '["addr(bcrt1qlwyzpu67l7s9gwv4gzuv4psypkxa4fx4g
 $ lncli-user channelbalance
 ```
 
-## Swapping Process: Off-Chain-To-On-Chain
+
+## Swapping Process: Off-Chain To On-Chain
 
 #### 1. Swap Provider generates a LN invoice asking for 1000 satoshis 
 ``` 
@@ -90,7 +99,7 @@ returns <payment_request>
 
 #### 2. Swap Provider generates the P2WSH address from the swap witness script
 ```
-$ node swap_p2wsh.js offtoon PAYMENT_HASH  TIMELOCK  [PREIMAGE]
+$ node swap_p2wsh.js off2on PAYMENT_HASH  TIMELOCK  [PREIMAGE]
 ```
 
 #### 3. Swap provider sends 1200 satoshis to the P2WSH swap smart contract address
@@ -105,10 +114,18 @@ $ sendtoaddress <p2wsh_addr> 0.000012
 $ lncli-user payinvoice <payment_request>
 ```
 
-#### 6. User redeems the funds locked in P2WSH swap smart contract
+#### 6. Happy case: user redeems the funds locked in the P2WSH swap smart contract
 > bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
 ```
-$ node spending_swap_tx.js claim offtoon TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK  PREIMAGE
+$ node spending_swap_tx.js claim off2on TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK  PREIMAGE
+$ sendrawtransaction <TX_HEX>
+$ getrawtransaction <TX_ID>
+```
+
+#### 6 bis. Failure case: swap provider redeems the funds locked in the P2WSH swap smart contract
+> bitcoin-cli _gettransaction_ or _getrawtransaction_ to get the output index (TX_VOUT)
+```
+$ node spending_swap_tx.js refund off2on TX_ID TX_VOUT  WITNESS_SCRIPT  TIMELOCK
 $ sendrawtransaction <TX_HEX>
 $ getrawtransaction <TX_ID>
 ```
