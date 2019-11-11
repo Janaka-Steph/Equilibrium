@@ -6,12 +6,12 @@ const { alice, bob } = require('./wallets.json')
 const network = bitcoin.networks.regtest
 const bip65 = require('bip65')
 const argv = require('yargs')
-    .usage('Usage: swap_p2wsh --forward [boolean] --rhash [string] --timelock [num] -preimage')
+    .usage('Usage: swap_p2wsh --forward [boolean] --rhash [string] --locktime [num] --preimage [string]')
     .boolean('forward')
     .alias('r', 'rhash')
     .alias('l', 'locktime')
     .alias('f', 'forward')
-    .demand(['forward', 'rhash', 'timelock'])
+    .demand(['forward', 'rhash', 'locktime'])
     .argv
 
 let IS_ONCHAIN_TO_OFFCHAIN = argv.forward
