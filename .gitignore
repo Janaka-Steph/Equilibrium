@@ -194,3 +194,6 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+
+README.pdf
+README.html
